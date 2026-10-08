@@ -1,26 +1,16 @@
-#c:\Users\Phum\Documents\Project\CADT\Devops\laravel-student-management-ci\.github\workflows\laravel-ci.yml
 name: Laravel CI
 
-# Trigger the workflow on push, pull requests, and manual runs
 on:
   push:
   pull_request:
   workflow_dispatch:
 
-# Define the job that runs our tests
 jobs:
   laravel-tests:
-    # Run on Ubuntu as required
     runs-on: ubuntu-latest
-    
-    # Read-only repository permissions
     permissions:
       contents: read
-    
-    # Timeout after 10 minutes to prevent hanging runs
     timeout-minutes: 10
-    
-    # Environment variables for testing
     env:
       APP_ENV: testing
       DB_CONNECTION: sqlite
@@ -28,14 +18,10 @@ jobs:
       SESSION_DRIVER: array
       CACHE_STORE: array
       QUEUE_CONNECTION: sync
-
-    # All the steps our workflow will execute
     steps:
-      # Step 1: Check out the repository code
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # Step 2: Set up PHP 8.3 with all required extensions
       - name: Install PHP and Composer
         uses: shivammathur/setup-php@v2
         with:
@@ -44,13 +30,11 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      # Step 3: Install Composer dependencies
       - name: Install project dependencies
         run: composer install --no-interaction --prefer-dist
 
-      # Step 4: Prepare environment and database
       - name: Setup environment and database
-        run:
+        run: |
           cp .env.example .env
           cp .env.testing.example .env.testing
           php artisan key:generate --env=testing
@@ -59,6 +43,5 @@ jobs:
           touch /tmp/laravel-test/database.sqlite
           php artisan migrate --force --env=testing
 
-      # Step 5: Run all Laravel tests
       - name: Run Laravel tests
         run: php artisan test
